@@ -106,6 +106,7 @@ def main(root_dir):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simple site generator.")
     parser.add_argument("root", help="root of site folder, defaults to current folder", nargs='?', default="./")
+    parser.add_argument('--version', action='version', version='%(prog)s 0.1')
     args = parser.parse_args()
         
     main(vars(args)["root"])
