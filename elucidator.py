@@ -60,9 +60,6 @@ def generate_page(global_metadata, input_path, output_path, template):
     template_file.close()
     output_file.close()
 
-    print(metadata)
-    print(html)
-
 
 def main(root_dir):
     if root_dir[-1] != "/":
