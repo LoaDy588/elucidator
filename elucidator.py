@@ -1,7 +1,7 @@
 import argparse
+import chevron
 import yaml
 import markdown
-import chevron
 from distutils import dir_util
 import os
 
@@ -25,9 +25,43 @@ def load_config(root_dir):
     return global_metadata, static_dirs, output_dir
     
 
-def generate_page(input_path, output_path, template):
+def split_file(input_path):
+    input_file = open(input_path, 'r')
+    for s in input_file:
+        if s.startswith('---'):
+            break
+    
+    yaml_lines = []
+    for s in input_file:
+        if s.startswith('---'):
+            break
+        else:
+            yaml_lines.append(s)
+    ym = ''.join(yaml_lines)
+    md = ''.join(input_file)
+    input_file.close()
+    return ym, md
+
+
+def generate_page(global_metadata, input_path, output_path, template):
     print("Creating:", output_path, "from:", input_path, ", with template:", template)
-    return
+    
+    ym, md = split_file(input_path)
+    metadata = yaml.load(ym, yaml.Loader)
+    metadata.update(global_metadata)
+    metadata["content"] = markdown.markdown(md)
+
+    template_file = open(template, 'r')
+    output_file = open(output_path, 'w')
+    
+    html = chevron.render(template_file, metadata)
+    output_file.write(html)
+
+    template_file.close()
+    output_file.close()
+
+    print(metadata)
+    print(html)
 
 
 def main(root_dir):
@@ -62,9 +96,9 @@ def main(root_dir):
                 input_path = root + "/" + item
 
                 if root == "./content/" and item_split[0] == "index":
-                    generate_page(input_path, output_path, "index.html")
+                    generate_page(global_metadata, input_path, output_path, root_dir + "theme/index.html")
                 else:
-                    generate_page(input_path, output_path, "base.html")
+                    generate_page(global_metadata, input_path, output_path, root_dir + "theme/base.html")
 
     print("Generation finished! Exiting...")
 
