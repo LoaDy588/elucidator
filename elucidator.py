@@ -5,6 +5,21 @@ import markdown
 from distutils import dir_util
 import os
 
+MD_EXT = ['abbr', 'footnotes', 'tables', 'codehilite', 'toc', 'smarty']
+
+MD_EXT_CFG = {
+    'footnotes' : {
+        'PLACE_MARKER' : '[FOOTNOTES]'
+    },
+    'codehilite' : {
+        'linenums' : True,
+        'css_class' : 'code_highlight'
+    },
+    'toc' : {
+        'marker' : '[TOC]',
+        'title' : 'Table of Content',
+    }
+}
 
 def load_config(root_dir):
     global_metadata = None
@@ -40,6 +55,7 @@ def split_file(input_path):
             break
         else:
             yaml_lines.append(s)
+
     ym = ''.join(yaml_lines)
     md = ''.join(input_file)
     input_file.close()
@@ -47,23 +63,20 @@ def split_file(input_path):
 
 
 def generate_page(global_metadata, input_path, output_path, template):
-    print("Creating:", output_path, "from:", input_path, ", with template:", template)
+    print("Creating:", output_path, "from:", input_path)
     
     ym, md = split_file(input_path)
     metadata = yaml.load(ym, yaml.Loader)
     metadata.update(global_metadata)
-    metadata["content"] = markdown.markdown(md)
+    metadata["content"] = markdown.markdown(md, extensions=MD_EXT, extension_configs = MD_EXT_CFG)
 
-    template_file = open(template, 'r')
-
-    if not os.path.isdir(os.path.dirname(output_path)):
-        os.makedirs(os.path.dirname(output_path))
+    dir_path = os.path.dirname(output_path)
+    if not os.path.isdir(dir_path):
+        os.makedirs(dir_path)
     output_file = open(output_path, 'w')
     
-    html = chevron.render(template_file, metadata)
+    html = chevron.render(template, metadata)
     output_file.write(html)
-
-    template_file.close()
     output_file.close()
 
 
@@ -90,8 +103,8 @@ def main(root_dir):
     # walk the content folder and generate html files    
     print("Starting .html file generation...")
 
-    theme_index = root_dir + theme_dir + "index.html"
-    theme_base = root_dir + theme_dir + "base.html"
+    theme_index = open(root_dir + theme_dir + "index.html", 'r')
+    theme_base = open(root_dir + theme_dir + "base.html", 'r')
 
     for root, dirs, files in os.walk(root_dir + "content/"):
         strip_level = root.replace(root_dir + "content/", "")
@@ -107,13 +120,15 @@ def main(root_dir):
                 else:
                     generate_page(global_metadata, input_path, output_path, theme_base)
 
+    theme_index.close()
+    theme_base.close()
     print("Generation finished! Exiting...")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simple site generator.")
     parser.add_argument("root", help="root of site folder, defaults to current folder", nargs='?', default="./")
-    parser.add_argument('--version', action='version', version='%(prog)s 0.2')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.3')
     args = parser.parse_args()
         
     main(vars(args)["root"])

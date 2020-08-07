@@ -29,6 +29,7 @@ Tested on Ubuntu/WSL, should also work on Windows.
 - chevron
 - pyyaml
 - py-markdown
+- pygments
 
 ## Generation progress
 - load config yaml file
