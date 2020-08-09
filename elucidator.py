@@ -2,10 +2,10 @@ import argparse
 import chevron
 import yaml
 import markdown
-from distutils import dir_util
+from distutils import dir_util, file_util
 import os
 
-MD_EXT = ['abbr', 'footnotes', 'tables', 'codehilite', 'toc', 'smarty']
+MD_EXT = ['abbr', 'footnotes', 'fenced_code', 'tables', 'codehilite', 'toc', 'smarty']
 
 MD_EXT_CFG = {
     'footnotes' : {
@@ -92,14 +92,18 @@ def main(root_dir):
     print ("Output dir is:", output_dir)
     print ("Theme dir is:", theme_dir)
 
-    # copy static content, if any and all folders in theme
+    # copy static content, if any and all folders and non .html files in theme
     print("Copying static dirs:", static_dirs)
     for item in static_dirs:
         dir_util.copy_tree(root_dir + "content/" + item, root_dir + output_dir + item, update=1)
 
-    for item in next(os.walk(root_dir + theme_dir))[1]:
+    theme_content = next(os.walk(root_dir + theme_dir))
+    for item in theme_content[1]:
         dir_util.copy_tree(root_dir + "theme/" + item, root_dir + output_dir + item, update=1)
-    
+    for item in theme_content[2]:
+        if item.split(".")[1] != "html":
+            file_util.copy_file(root_dir + "theme/" + item, root_dir + output_dir + item, update=1)
+
     # walk the content folder and generate html files    
     print("Starting .html file generation...")
 
@@ -111,7 +115,7 @@ def main(root_dir):
         for item in files:
             item_split = item.split(".")
 
-            if (item_split[1] == "md"):
+            if item_split[1] == "md":
                 output_path = root_dir + output_dir + strip_level + "/" + item_split[0] + ".html"
                 input_path = root + "/" + item
 
