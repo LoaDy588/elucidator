@@ -5,14 +5,14 @@ import markdown
 from distutils import dir_util, file_util
 import os
 
-MD_EXT = ['abbr', 'footnotes', 'fenced_code', 'tables', 'codehilite', 'toc', 'smarty']
+MD_EXT = ['abbr', 'footnotes', 'fenced_code', 'tables', 'codehilite', 'toc', 'smarty', 'nl2br']
 
 MD_EXT_CFG = {
     'footnotes' : {
         'PLACE_MARKER' : '[FOOTNOTES]'
     },
     'codehilite' : {
-        'linenums' : True,
+        'linenums' : False,
         'css_class' : 'code_highlight'
     },
     'toc' : {
