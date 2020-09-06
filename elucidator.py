@@ -107,8 +107,8 @@ def main(root_dir):
     # walk the content folder and generate html files    
     print("Starting .html file generation...")
 
-    theme_index = open(root_dir + theme_dir + "index.html", 'r')
-    theme_base = open(root_dir + theme_dir + "base.html", 'r')
+    theme_index = open(root_dir + theme_dir + "index.html", 'r').read()
+    theme_base = open(root_dir + theme_dir + "base.html", 'r').read()
 
     for root, dirs, files in os.walk(root_dir + "content/"):
         strip_level = root.replace(root_dir + "content/", "")
@@ -123,9 +123,6 @@ def main(root_dir):
                     generate_page(global_metadata, input_path, output_path, theme_index)
                 else:
                     generate_page(global_metadata, input_path, output_path, theme_base)
-
-    theme_index.close()
-    theme_base.close()
     print("Generation finished! Exiting...")
 
 
