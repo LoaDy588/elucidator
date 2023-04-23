@@ -74,7 +74,13 @@ def generate_page(global_metadata, input_path, output_path, template):
     if not os.path.isdir(dir_path):
         os.makedirs(dir_path)
     output_file = open(output_path, 'w')
-    
+
+    #chevron calls str object title as callable, this is a workaround
+    # https://github.com/noahmorrison/chevron/issues/117
+    if "title" in metadata:
+        value = metadata["title"]
+        metadata["title"] = dict({"title": value})
+
     html = chevron.render(template, metadata)
     output_file.write(html)
     output_file.close()
